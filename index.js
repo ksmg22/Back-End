@@ -1,18 +1,19 @@
-// Creación y configuración del SERVER
-const http = require('http');
-const app = require('./src/app');
+// Crear y levantar el SERVER
+const http = require("node:http");
 
-// Creación server
+const app = require("./src/app");
+
+// Config .env
+require("dotenv").config();
+
+// Config DB
+require("./src/config/db");
+
 const server = http.createServer(app);
 
 const PORT = process.env.PORT || 3000;
 server.listen(PORT);
 
-// Listeners
-server.on('listening', () => {
-    console.log(`Servidor escuchando sobre el puerto ${PORT}`);
+server.on("listening", () => {
+  console.log(`Servidor escuchando en puerto ${PORT}`);
 });
-
-server.on('error', (error) => {
-    console.log(error);
-})
