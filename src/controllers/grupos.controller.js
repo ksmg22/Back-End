@@ -6,9 +6,9 @@ const {
   deleteGroup,
 } = require("../models/grupo.model");
 
-exports.getAllGroups = async (req, res) => {
+exports.getAllGroupsUser = async (req, res) => {
   try {
-    const groups = await getAllGroups();
+    const groups = await getAllGroupsUser();
     res.json(groups);
   } catch (error) {
     res.status(500).json({ error: error.message });

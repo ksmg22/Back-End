@@ -15,6 +15,8 @@ exports.registerUser = async (req, res) => {
   }
 };
 
+const { createToken } = require("../helpers/utils")
+
 exports.loginUser = async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -23,7 +25,8 @@ exports.loginUser = async (req, res) => {
       [email, password]
     );
     if (user.length) {
-      res.status(200).json(user[0]);
+      const token = createToken(user[0]);
+      res.status(200).json({ user: user[0], token });
     } else {
       res.status(401).json({ error: "Invalid credentials" });
     }
@@ -31,6 +34,7 @@ exports.loginUser = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
+
 
 exports.getAllUsers = async (req, res) => {
   try {

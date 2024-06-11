@@ -18,6 +18,24 @@ const getAllGroups = async () => {
   return rows;
 };
 
+const getAllGroupsUser = async () => {
+  const [rows] = await db.query(`
+    SELECT 
+      g.group_id,
+      g.title,
+      g.description,
+      g.date
+    FROM 
+      pruebas_proyecto.usuario u
+    JOIN 
+      pruebas_proyecto.usuario_has_grupo uhg ON u.user_id = uhg.usuario_user_id
+    JOIN 
+      pruebas_proyecto.grupo g ON uhg.grupo_group_id = g.group_id
+    WHERE 
+    u.user_id = ?;`);
+  return rows;
+};
+
 const updateGroup = async (id, groupData) => {
   const [result] = await db.query(
     `UPDATE grupo SET title = ?, description = ? WHERE group_id = ?`,
@@ -35,6 +53,7 @@ module.exports = {
   createGroup,
   getGroupById,
   getAllGroups,
+  getAllGroupsUser,
   updateGroup,
   deleteGroup,
 };
