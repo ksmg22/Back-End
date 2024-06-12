@@ -1,9 +1,23 @@
-//const db = global.db;
+const db = global.db;
 
 const createGroup = async (groupData) => {
   const [result] = await db.query(
     `INSERT INTO grupo (title, description, creation_date) VALUES (?, ?, NOW())`,
     [groupData.title, groupData.description]
+  );
+  return result;
+};
+
+const getUserIdByEmail = async (email) => {
+  const [rows] = await db.query('SELECT user_id FROM usuario WHERE email = ?', [email]);
+  console.log(`Resultado de getUserIdByEmail para ${email}:`, rows);
+  return rows.length > 0 ? rows[0].user_id : null;
+};
+
+const addGroupMember = async (groupId, userId, percentage) => {
+  const [result] = await db.query(
+    `INSERT INTO grupo_miembro (group_id, user_id, percentage) VALUES (?, ?, ?)`,
+    [groupId, userId, percentage]
   );
   return result;
 };
@@ -51,6 +65,8 @@ const deleteGroup = async (id) => {
 
 module.exports = {
   createGroup,
+  addGroupMember,
+  getUserIdByEmail,
   getGroupById,
   getAllGroups,
   getAllGroupsUser,

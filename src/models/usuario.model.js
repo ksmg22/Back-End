@@ -8,13 +8,7 @@ const createUser = async (name, lastname, email, photo, hashedPassword) => {
   return result;
 };
 
-const addGroupMember = async (groupId, userId, paymentPercentage) => {
-  const [result] = await db.query(
-    "INSERT INTO grupo_miembro (group_id, user_id, percentage) VALUES (?, ?, ?)",
-    [groupId, userId, paymentPercentage]
-  );
-  return result;
-};
+
 
 const removeGroupMember = async (groupId, userId) => {
   const [result] = await db.query(
@@ -85,7 +79,6 @@ const groupExists = async (groupId) => {
 
 module.exports = {
   createUser,
-  addGroupMember,
   removeGroupMember,
   getAllUsers,
   getUserById,
