@@ -1,81 +1,171 @@
+const bcrypt = require("bcryptjs");
 const {
   createUser,
-  getUserById,
+  addGroupMember,
   getAllUsers,
+  getUserById,
   updateUser,
   deleteUser,
+  getUserByEmail,
+  groupExists,
+  removeGroupMember,
 } = require("../models/usuario.model");
+const { generateToken } = require("../helpers/utils");
 
-exports.registerUser = async (req, res) => {
-  try {
-    const user = await createUser(req.body);
-    res.status(201).json(user);
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-};
+const registerUser = async (req, res) => {
+  const { name, lastname, email, photo, password, groupId, paymentPercentage } =
+    req.body;
 
-exports.loginUser = async (req, res) => {
   try {
-    const { email, password } = req.body;
-    const [user] = await db.query(
-      "SELECT * FROM usuario WHERE email = ? AND password = ?",
-      [email, password]
+    const hashedPassword = bcrypt.hashSync(password, 8);
+    const result = await createUser(
+      name,
+      lastname,
+      email,
+      photo,
+      hashedPassword
     );
-    if (user.length) {
-      res.status(200).json(user[0]);
+
+    if (result.insertId) {
+      if (groupId) {
+        const groupExistsResult = await groupExists(groupId);
+        if (!groupExistsResult) {
+          return res.status(400).json({ message: "El grupo no existe" });
+        }
+        await addGroupMember(groupId, result.insertId, paymentPercentage);
+      }
+      res.status(201).json({ message: "Usuario registrado exitosamente" });
     } else {
-      res.status(401).json({ error: "Invalid credentials" });
+      res.status(500).json({ message: "Error al registrar el usuario" });
     }
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 };
 
-exports.getAllUsers = async (req, res) => {
+const getAllUsersHandler = async (req, res) => {
   try {
     const users = await getAllUsers();
-    res.json(users);
+    res.status(200).json(users);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 };
 
-exports.getUserById = async (req, res) => {
+const getUserByIdHandler = async (req, res) => {
   try {
     const user = await getUserById(req.params.id);
-    if (user) {
-      res.json(user);
-    } else {
-      res.status(404).json({ error: "User not found" });
+    if (!user) {
+      return res.status(404).json({ message: "Usuario no encontrado" });
     }
+    res.status(200).json(user);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 };
 
-exports.updateUser = async (req, res) => {
+const updateUserHandler = async (req, res) => {
+  const {
+    name,
+    lastname,
+    email,
+    photo,
+    password,
+    group_id,
+    payment_percentage,
+    debt,
+  } = req.body;
+  const updateData = {
+    name,
+    lastname,
+    email,
+    photo,
+    group_id,
+    payment_percentage,
+    debt,
+  };
+  if (password) {
+    updateData.password = bcrypt.hashSync(password, 8);
+  }
+
   try {
-    const user = await updateUser(req.params.id, req.body);
-    if (user.affectedRows > 0) {
-      res.json({ message: "User updated" });
-    } else {
-      res.status(404).json({ error: "User not found" });
+    const result = await updateUser(req.params.id, updateData);
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ message: "Usuario no encontrado" });
     }
+    res.status(200).json({ message: "Usuario actualizado" });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 };
 
-exports.deleteUser = async (req, res) => {
+const deleteUserHandler = async (req, res) => {
   try {
     const result = await deleteUser(req.params.id);
-    if (result.affectedRows > 0) {
-      res.json({ message: "User deleted" });
-    } else {
-      res.status(404).json({ error: "User not found" });
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ message: "Usuario no encontrado" });
     }
+    res.status(200).json({ message: "Usuario eliminado" });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
+};
+
+const loginUser = async (req, res) => {
+  const { email, password } = req.body;
+  try {
+    const user = await getUserByEmail(email);
+    if (!user) {
+      return res.status(404).json({ message: "Usuario no encontrado" });
+    }
+    const passwordIsValid = bcrypt.compareSync(password, user.password);
+    if (!passwordIsValid) {
+      return res.status(401).json({ message: "Contraseña inválida" });
+    }
+    const token = generateToken(user);
+    res.status(200).json({ token });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+const addUserToGroup = async (req, res) => {
+  const { groupId, paymentPercentage } = req.body;
+  const userId = req.params.id;
+
+  try {
+    const groupExistsResult = await groupExists(groupId);
+    if (!groupExistsResult) {
+      return res.status(400).json({ message: "El grupo no existe" });
+    }
+    await addGroupMember(groupId, userId, paymentPercentage);
+    res.status(200).json({ message: "Usuario asignado al grupo exitosamente" });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+const removeUserFromGroup = async (req, res) => {
+  const userId = req.params.id;
+  const groupId = req.params.groupId;
+
+  try {
+    await removeGroupMember(groupId, userId);
+    res
+      .status(200)
+      .json({ message: "Usuario eliminado del grupo exitosamente" });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+module.exports = {
+  registerUser,
+  getAllUsersHandler,
+  getUserByIdHandler,
+  updateUserHandler,
+  deleteUserHandler,
+  loginUser,
+  addUserToGroup,
+  removeUserFromGroup,
 };

@@ -2,7 +2,7 @@
 
 const createGroup = async (groupData) => {
   const [result] = await db.query(
-    `INSERT INTO grupo (title, description) VALUES (?, ?)`,
+    `INSERT INTO grupo (title, description, creation_date) VALUES (?, ?, NOW())`,
     [groupData.title, groupData.description]
   );
   return result;

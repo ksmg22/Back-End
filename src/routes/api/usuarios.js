@@ -1,12 +1,21 @@
 const express = require("express");
 const router = express.Router();
 const userController = require("../../controllers/usuarios.controller");
+const { verifyToken, isAdmin } = require("../../helpers/middlewares");
 
-router.post("/register", userController.registerUser);
-router.post("/login", userController.loginUser);
-router.get("/", userController.getAllUsers);
-router.get("/:id", userController.getUserById);
-router.put("/:id", userController.updateUser);
-router.delete("/:id", userController.deleteUser);
+router.post("/register", userController.registerUser); // Ruta de registro
+router.post("/login", userController.loginUser); // Ruta de login
+router.get("/", verifyToken, userController.getAllUsersHandler);
+router.get("/:id", verifyToken, userController.getUserByIdHandler);
+router.put("/:id", verifyToken, userController.updateUserHandler);
+router.delete("/:id", verifyToken, isAdmin, userController.deleteUserHandler);
+
+// Rutas de grupo
+router.post("/:id/grupo", verifyToken, userController.addUserToGroup);
+router.delete(
+  "/:id/grupo/:groupId",
+  verifyToken,
+  userController.removeUserFromGroup
+);
 
 module.exports = router;

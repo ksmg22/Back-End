@@ -1,15 +1,18 @@
-const dayjs = require("dayjs");
 const jwt = require("jsonwebtoken");
 
-const createToken = (usuario) => {
+const generateToken = (user) => {
   const payload = {
-    user_id: usuario.id,
-    exp: dayjs().add(7, "days").unix(),
+    id: user.user_id,
+    email: user.email,
   };
 
-  return jwt.sign(payload, process.env.SECRET_KEY);
+  const secret = process.env.SECRET_KEY || "default_secret";
+
+  return jwt.sign(payload, secret, {
+    expiresIn: "24h",
+  });
 };
 
 module.exports = {
-  createToken,
+  generateToken,
 };

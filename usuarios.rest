@@ -1,0 +1,50 @@
+@PORT = 3000
+@HOST = http://localhost:{{PORT}}
+@TOKEN = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiZW1haWwiOiJhZG1pbkBleGFtcGxlLmNvbSIsImlhdCI6MTcxODE2MjkwMywiZXhwIjoxNzE4MjQ5MzAzfQ.vLep-pMYsMv_Rm1E5SRlQJNlw6kJZYK3p5qYcRM3L7g
+
+### Registro de un nuevo usuario independiente
+POST {{HOST}}/api/usuarios/register
+Content-Type: application/json
+Authorization: Bearer {{TOKEN}}
+
+{
+  "name": "Usuario Independiente",
+  "lastname": "Apellido Independiente",
+  "email": "independiente@example.com",
+  "photo": "url_de_la_foto",
+  "password": "nuevapassword"
+}
+
+### Login de Usuario
+POST {{HOST}}/api/usuarios/login
+Content-Type: application/json
+
+{
+  "email": "admin@example.com",
+  "password": "nuevapassword"
+}
+
+### OBTENER TODOS LOS USUARIOS
+GET {{HOST}}/api/usuarios
+Authorization: Bearer {{TOKEN}}
+
+### Obtener un usuario por ID
+GET {{HOST}}/api/usuarios/1
+Authorization: Bearer {{TOKEN}}
+
+### Actualizar un usuario
+PUT {{HOST}}/api/usuarios/1
+Content-Type: application/json
+Authorization: Bearer {{TOKEN}}
+
+{
+  "name": "Usuario Actualizado",
+  "lastname": "Apellido Actualizado",
+  "email": "actualizado@example.com",
+  "photo": "url_actualizada_de_la_foto",
+  "password": "nuevapasswordactualizada"
+}
+
+### Eliminar un usuario
+DELETE {{HOST}}/api/usuarios/1
+Authorization: Bearer {{TOKEN}}

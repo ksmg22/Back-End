@@ -1,11 +1,17 @@
 const express = require("express");
 const router = express.Router();
-const pagoController = require("../../controllers/pagos.controller");
+const pagosController = require("../../controllers/pagos.controller");
+const { verifyToken } = require("../../helpers/middlewares");
 
-router.post("/", pagoController.createPago);
-router.get("/", pagoController.getAllPagos);
-router.get("/:id", pagoController.getPagoById);
-router.put("/:id", pagoController.updatePago);
-router.delete("/:id", pagoController.deletePago);
+router.post("/", verifyToken, pagosController.createPagoHandler);
+router.get("/:id", verifyToken, pagosController.getPagoByIdHandler);
+router.get("/", verifyToken, pagosController.getAllPagosHandler);
+router.put("/:id", verifyToken, pagosController.updatePagoHandler);
+router.delete("/:id", verifyToken, pagosController.deletePagoHandler);
+router.get(
+  "/usuario/:userId",
+  verifyToken,
+  pagosController.getPagosByUserHandler
+);
 
 module.exports = router;
