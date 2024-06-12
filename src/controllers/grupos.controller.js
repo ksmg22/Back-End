@@ -4,6 +4,7 @@ const {
   getAllGroups,
   updateGroup,
   deleteGroup,
+  getAllGroupsUser,
 } = require("../models/grupo.model");
 
 const createGroupHandler = async (req, res) => {
@@ -31,7 +32,7 @@ const getGroupByIdHandler = async (req, res) => {
 
 const getAllGroupsHandler = async (req, res) => {
   try {
-    const groups = await getAllGroups();
+    const groups = await getAllGroupsUser();
     res.json(groups);
   } catch (error) {
     res.status(500).json({ error: error.message });

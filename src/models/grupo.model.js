@@ -18,21 +18,21 @@ const getAllGroups = async () => {
   return rows;
 };
 
-const getAllGroupsUser = async () => {
+const getAllGroupsUser = async (id) => {
   const [rows] = await db.query(`
     SELECT 
-      g.group_id,
-      g.title,
-      g.description,
-      g.date
+        g.group_id,
+        g.title,
+        g.description,
+        g.creation_date
     FROM 
-      pruebas_proyecto.usuario u
+        proyecto.usuario u
     JOIN 
-      pruebas_proyecto.usuario_has_grupo uhg ON u.user_id = uhg.usuario_user_id
+        proyecto.grupo_miembro gm ON u.user_id = gm.user_id
     JOIN 
-      pruebas_proyecto.grupo g ON uhg.grupo_group_id = g.group_id
+        proyecto.grupo g ON gm.group_id = g.group_id
     WHERE 
-    u.user_id = ?;`);
+        u.user_id = ?;`[id]);
   return rows;
 };
 
