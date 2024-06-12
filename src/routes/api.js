@@ -1,13 +1,13 @@
 const express = require("express");
 const router = express.Router();
-const userRoutes = require("./api/usuarios");
-const groupRoutes = require("./api/grupos");
-const gastoRoutes = require("./api/gastos");
-const pagoRoutes = require("./api/pagos");
+const gastosRouter = require("./api/gastos");
+const gruposRouter = require("./api/grupos");
+const pagosRouter = require("./api/pagos");
+const usuariosRouter = require("./api/usuarios");
 
-router.use("/usuarios", userRoutes);
-router.use("/grupos", groupRoutes);
-router.use("/gastos", gastoRoutes);
-router.use("/pagos", pagoRoutes);
+router.use("/gastos", gastosRouter);
+router.use("/grupos", gruposRouter);
+router.use("/pagos", pagosRouter);
+router.use("/usuarios", usuariosRouter);
 
 module.exports = router;

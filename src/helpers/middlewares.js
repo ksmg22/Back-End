@@ -1,64 +1,36 @@
 const jwt = require("jsonwebtoken");
+const secret = process.env.SECRET_KEY || "default_secret";
 
-const Usuario = require("../models/usuario.model");
-const Grupo = require("../models/grupo.model");
-
-const checkToken = async (req, res, next) => {
-  // ¿El token existe dentro de la petición?
-  if (!req.headers["authorization"]) {
-    return res
-      .status(403)
-      .json({ error: "Debes incluir el token de autorización" });
-  }
-
+const verifyToken = (req, res, next) => {
   const token = req.headers["authorization"];
 
-  // ¿El token es correcto?
-  let payload;
-  try {
-    payload = jwt.verify(token, process.env.SECRET_KEY);
-  } catch (error) {
-    return res.status(403).json({ error: error.message });
+  if (!token) {
+    return res.status(403).send({
+      message: "No se proporcionó un token.",
+    });
   }
 
-  // Recuperar el usuario
-  const [result] = await Usuario.selectById(payload.user.id);
-  req.user = result[0];
-
-  next();
-};
-
-const checkAdmin = (req, res, next) => {
-  if (req.user.role !== "admin") {
-    return res.status(403).json({ error: "Debes ser administrador" });
-  }
-  next();
-};
-
-const checkRole = (role) => {
-  return (req, res, next) => {
-    if (req.user.role !== role) {
-      return res.status(401).json({ error: `Debes tener role ${role}` });
+  jwt.verify(token, secret, (err, decoded) => {
+    if (err) {
+      return res.status(401).send({
+        message: "Falló la autenticación del token.",
+      });
     }
+    req.userId = decoded.id;
     next();
-  };
+  });
 };
 
-const checkGrupoId = async (req, res, next) => {
-  const { grupo_id } = req.params;
-
-  const [result] = await Grupo.selectById(grupo_id);
-
-  if (result.length === 0) {
-    return res.status(404).json({ error: "El id del grupo es incorrecto" });
+const isAdmin = async (req, res, next) => {
+  if (req.verified !== 1) {
+    return res
+      .status(403)
+      .json({ message: "No tienes permisos para realizar esta acción." });
   }
-
   next();
 };
 
 module.exports = {
-  checkToken,
-  checkAdmin,
-  checkRole,
-  checkGrupoId,
+  verifyToken,
+  isAdmin,
 };
