@@ -23,8 +23,27 @@ const addGroupMember = async (groupId, userId, percentage) => {
 };
 
 const getGroupById = async (id) => {
-  const [rows] = await db.query(`SELECT * FROM grupo WHERE group_id = ?`, [id]);
-  return rows[0];
+  const [group] = await db.query(`SELECT * FROM grupo WHERE group_id = ?`, [id]);
+  const [users] = await db.query(`SELECT * FROM proyecto.usuario WHERE user_id IN (SELECT user_id FROM proyecto.grupo_miembro WHERE group_id = ?);`, [id]);
+
+  group[0]['users'] = users;
+  const arrayUsers = group[0]['users'];
+
+  // Usamos un bucle for...of para manejar promesas correctamente
+  for (const element of arrayUsers) {
+
+    // Obtenemos los gastos del usuario de forma asíncrona
+    const [gastos] = await db.query(`SELECT e.*
+    FROM proyecto.grupo_miembro gm
+    JOIN proyecto.usuario u ON gm.user_id = u.user_id
+    JOIN proyecto.gasto e ON e.user_id_gasto = u.user_id
+    WHERE e.group_id = ? AND e.user_id_gasto = ?`, [id, element['user_id']]);
+
+    // Añadimos los gastos al usuario correspondiente
+    element['gastos'] = gastos;
+  }
+
+  return group[0];
 };
 
 const getAllGroups = async () => {

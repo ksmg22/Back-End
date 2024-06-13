@@ -145,3 +145,6 @@ Content-Type: application/json
 
 ### Eliminar un pago
 DELETE {{HOST}}/api/pagos/1
+
+
+

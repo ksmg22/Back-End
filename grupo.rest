@@ -17,7 +17,7 @@ GET {{HOST}}/api/grupos
 Authorization: {{TOKEN}}
 
 ### Obtener un grupo por ID
-GET {{HOST}}/api/grupos/9
+GET {{HOST}}/api/grupos/1
 Authorization: {{TOKEN}}
 
 ### Actualizar un grupo
