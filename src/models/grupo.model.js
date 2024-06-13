@@ -24,7 +24,7 @@ const addGroupMember = async (groupId, userId, percentage) => {
 
 const getGroupById = async (id) => {
   const [group] = await db.query(`SELECT * FROM grupo WHERE group_id = ?`, [id]);
-  const [users] = await db.query(`SELECT * FROM proyecto.usuario WHERE user_id IN (SELECT user_id FROM proyecto.grupo_miembro WHERE group_id = ?);`, [id]);
+  const [users] = await db.query(`SELECT name,lastname,email,photo FROM proyecto.usuario WHERE user_id IN (SELECT user_id FROM proyecto.grupo_miembro WHERE group_id = ?);`, [id]);
 
   group[0]['users'] = users;
   const arrayUsers = group[0]['users'];
